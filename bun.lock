@@ -4,6 +4,7 @@
     "": {
       "name": "image-studio",
       "dependencies": {
+        "@ai-sdk/fal": "^1.0.12",
         "@ai-sdk/google": "^2.0.12",
         "@ai-sdk/openai": "^2.0.23",
         "@convex-dev/better-auth": "^0.7.17",
@@ -75,6 +76,8 @@
     },
   },
   "packages": {
+    "@ai-sdk/fal": ["@ai-sdk/fal@1.0.12", "", { "dependencies": { "@ai-sdk/provider": "2.0.0", "@ai-sdk/provider-utils": "3.0.8" }, "peerDependencies": { "zod": "^3.25.76 || ^4" } }, "sha512-yKm1mn0qfmd6WVICyMJU7P6VnnKUxn9h3hY1COLfK6tt1cr6+eAe5N6cIHmUekLb0D29M/shY3jPVpPn4Y1X2Q=="],
+
     "@ai-sdk/gateway": ["@ai-sdk/gateway@1.0.15", "", { "dependencies": { "@ai-sdk/provider": "2.0.0", "@ai-sdk/provider-utils": "3.0.7" }, "peerDependencies": { "zod": "^3.25.76 || ^4" } }, "sha512-xySXoQ29+KbGuGfmDnABx+O6vc7Gj7qugmj1kGpn0rW0rQNn6UKUuvscKMzWyv1Uv05GyC1vqHq8ZhEOLfXscQ=="],
 
     "@ai-sdk/google": ["@ai-sdk/google@2.0.12", "", { "dependencies": { "@ai-sdk/provider": "2.0.0", "@ai-sdk/provider-utils": "3.0.8" }, "peerDependencies": { "zod": "^3.25.76 || ^4" } }, "sha512-BH3w0hPddNo82okuF/UmCZreKibUSDTW/SED0sBWlrj16S9/H/Urzf4mBwwT419kVenb8XvO55KJ6Byc8ONNXQ=="],

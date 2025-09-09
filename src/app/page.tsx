@@ -8,6 +8,7 @@ import { useMutation, useQuery } from "convex/react"
 import { api } from "../../convex/_generated/api"
 import Image from "next/image"
 import { Calligraffitti } from "next/font/google"
+import ImagePopup from "@/components/image-open" 
 
 export const call = Calligraffitti({
   variable: "--font-kode-mono",
@@ -17,6 +18,8 @@ export const call = Calligraffitti({
 
 export default function ImageStudio() {
   const [prompt, setPrompt] = useState("")
+  const [selectedImage, setSelectedImage] = useState<{ url: string; prompt: string } | null>(null)
+
   const generateImage = useMutation(api.images.generate.scheduleImageGeneration)
   const images = useQuery(api.image.getImages)
 
@@ -31,7 +34,6 @@ export default function ImageStudio() {
     <div className="h-screen flex flex-col overflow-hidden">
       <div className="flex-1 px-4 pb-4 md:px-6 md:pb-6 overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 h-full">
-          {/* Prompt Box Section */}
           <div className="flex flex-col justify-center">
             <div className="relative">
               <Textarea
@@ -42,7 +44,7 @@ export default function ImageStudio() {
                 onKeyDown={async (e) => {
                   if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                     if (!prompt.trim()) return
-                    await generateImage({ prompt })
+                    await generateImage({ prompt, imageWidth: 1024, imageHeight: 1024, numberOfImages: 1 })
                     setPrompt("")
                   }
                 }}
@@ -52,7 +54,7 @@ export default function ImageStudio() {
                 <Button
                   onClick={async () => {
                     if (!prompt.trim()) return
-                    await generateImage({ prompt })
+                    await generateImage({ prompt, imageWidth: 1024, imageHeight: 1024, numberOfImages: 1 })
                     setPrompt("")
                   }}
                   disabled={!prompt.trim()}
@@ -63,7 +65,6 @@ export default function ImageStudio() {
               </div>
             </div>
 
-            {/* Preset Buttons */}
             <div className="mt-3 flex flex-wrap gap-2">
               {presets.map((p) => (
                 <Button
@@ -79,17 +80,17 @@ export default function ImageStudio() {
             </div>
           </div>
 
-          {/* Image Gallery Section */}
           <div className="flex flex-col justify-center">
-            {images && images.some((img) => Boolean(img.url)) ? (
+            {images && images.some((img) => Boolean(img.url) && img.status === "generated") ? (
               <div className="max-h-[1000px] overflow-y-auto">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {images
-                    .filter((img) => Boolean(img.url))
+                    .filter((img) => Boolean(img.url) && img.status === "generated")
                     .map((image) => (
                       <div
                         key={image._id}
-                        className="group relative overflow-hidden rounded-lg border border-border aspect-square transition hover:shadow-md"
+                        className="group relative overflow-hidden rounded-lg border border-border aspect-square transition hover:shadow-md cursor-pointer"
+                        onClick={() => setSelectedImage({ url: image.url!, prompt: image.prompt })}
                       >
                         <Image
                           src={image.url!}
@@ -122,6 +123,15 @@ export default function ImageStudio() {
           </div>
         </div>
       </div>
+
+      {selectedImage && (
+        <ImagePopup
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          imageUrl={selectedImage.url}
+          prompt={selectedImage.prompt}
+        />
+      )}
     </div>
   )
 }

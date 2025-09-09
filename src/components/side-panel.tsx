@@ -2,10 +2,8 @@ import React from "react"
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
-    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
@@ -43,24 +41,15 @@ export function Sidepanel() {
 
             <SidebarContent className="sp-content px-2 py-2">
                 <SidebarGroup>
-                    <SidebarGroupLabel className="sp-group-label px-2">
-                        Navigation
-                    </SidebarGroupLabel>
 
                     <SidebarGroupContent>
-                        <SidebarMenu className="gap-1.5">
-                            <SidebarMenuButton className="sp-button" tooltip="Home" data-active="true">
-                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden>
-                                    <path d="M3 10.5l9-6 9 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    <path d="M7 13v7h10v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                <span className="sp-label">Home</span>
+                        <SidebarMenu className="gap-1.5 px-2 rounded-xl">
+                            <SidebarMenuButton className="rounded-xl" tooltip="Text to Image" data-active="true">
+
+                                <span className="sp-label">Text to Image</span>
                             </SidebarMenuButton>
-                            <SidebarMenuButton className="sp-button" tooltip="Create">
-                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden>
-                                    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                <span className="sp-label">Create</span>
+                            <SidebarMenuButton className="rounded-xl" tooltip="Image to Image">
+                                <span className="sp-label">Image to Image</span>
                             </SidebarMenuButton>
                         </SidebarMenu>
                     </SidebarGroupContent>

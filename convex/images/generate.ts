@@ -112,10 +112,10 @@ export const generateImages = internalAction({
 export const scheduleImageGeneration = mutation({
   args: {
     prompt: v.string(),
-    imageWidth: v.optional(v.number()),
-    imageHeight: v.optional(v.number()),
+    imageWidth: v.number(),
+    imageHeight: v.number(),
     model: v.optional(v.string()),
-    numberOfImages: v.optional(v.number()),
+    numberOfImages: v.number(), 
     storageId: v.optional(v.id("_storage")),
     originalImageId: v.optional(v.id("images")),
   },
@@ -132,9 +132,9 @@ export const scheduleImageGeneration = mutation({
     const originalImageId = await ctx.db.insert("images", {
       prompt: prompt,
       body: storageId,
-      imageWidth: imageWidth ?? 1024,
-      imageHeight: imageHeight ?? 1024,
-      numberOfImages: numberOfImages ?? 1,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
+      numberOfImages: numberOfImages,
       createdAt: Date.now(),
       status: "running",
       model: model ?? "gemini-2.5-flash-image-preview",
@@ -142,6 +142,9 @@ export const scheduleImageGeneration = mutation({
 
     await ctx.scheduler.runAfter(0, internal.images.imageGen.generateImages, {
       prompt: prompt,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
+      numberOfImages: numberOfImages,
     });
 
     return originalImageId;

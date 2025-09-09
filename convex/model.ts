@@ -20,7 +20,3 @@ export const models = [
         description : "Flux Pro Ultra is a state-of-the-art image generation model that generates high-quality images based on text prompts.",
     },
 ]
-
-export const getModelById = (id: string) => {
-    return models.find((model) => model.id === id);
-}

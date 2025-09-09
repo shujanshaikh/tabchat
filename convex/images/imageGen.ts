@@ -2,15 +2,16 @@ import { v } from "convex/values";
 import { internalAction } from "../_generated/server";
 import { experimental_generateImage as generateImage } from "ai";
 import { Effect } from "effect";
-import { openai } from "@ai-sdk/openai"
 import { api } from "../_generated/api";
+import { fal } from '@ai-sdk/fal';
+
 
 
 export const generateImages = internalAction({
   args: {
     prompt: v.string(),
-    imageWidth: v.optional(v.number()),
-    imageHeight: v.optional(v.number()),
+    imageWidth: v.number(),
+    imageHeight: v.number(),
     numberOfImages: v.optional(v.number()),
     storageId: v.optional(v.id("_storage")),
     originalImageId: v.optional(v.id("images")),
@@ -18,14 +19,22 @@ export const generateImages = internalAction({
   handler : async( ctx, args) =>  {
     const program = Effect.gen(function* (_) {
       const { prompt, imageHeight, imageWidth, numberOfImages, storageId, originalImageId } = args
+      const size = `${imageWidth}x${imageHeight}` as `${number}x${number}`;
       
       const { images } = yield* _(
         Effect.tryPromise({
           try: () =>
             generateImage({
-              model: openai.image('dall-e-3'),
+              model: fal.image("fal-ai/flux/dev"),
               prompt: prompt,
-              size: '1024x1024',
+              size: size,
+              n : numberOfImages,
+              // providerOptions: {
+              //   fal: {
+              //     image_url:
+              //       'https://v3.fal.media/files/rabbit/rmgBxhwGYb2d3pl3x9sKf_output.png',
+              //   },
+              // },
             }),
           catch: () => new Error("Error While generating image")
         })
@@ -58,10 +67,10 @@ export const generateImages = internalAction({
                 body: storageId,
                 originalImageId: originalImageId,
                 prompt,
-                model: "gemini-2.5-flash-image-preview",
-                imageWidth: imageWidth ?? 1024,
-                imageHeight: imageHeight ?? 1024,
-                numberOfImages: 1,
+                model: "fal-ai/flux/dev",
+                imageWidth: imageWidth,
+                imageHeight: imageHeight,
+                numberOfImages: numberOfImages ?? 1,
                 status: "generated",
                 storageId: args.storageId,
               });
