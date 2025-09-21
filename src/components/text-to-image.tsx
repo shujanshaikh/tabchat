@@ -9,6 +9,7 @@ import Image from "next/image"
 import ImagePopup from "@/components/image-open"
 import ModelSelector from "@/components/model-selector"
 import { models } from "../../convex/model"
+import { RatioSelector } from "./ratio-selector"
 
 
 export default function ImageStudio() {
@@ -18,6 +19,7 @@ export default function ImageStudio() {
   const generateImage = useMutation(api.images.generate.scheduleImageGeneration)
   const images = useQuery(api.image.getImages)
 
+
   const presets = [
     "A pastel orange wall with an arched door and a vintage blue car parked in front, creating a charming retro aesthetic.",
     "Moody portrait of a person in motion, with dramatic lighting highlighting their hair and white t-shirt against a dark background.",
@@ -26,14 +28,32 @@ export default function ImageStudio() {
 
   const [model, setModel] = useState(models[0].id)
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return
-    await generateImage({ prompt, imageWidth: 1024, imageHeight: 1024, numberOfImages: 1, model: model })
-    setPrompt("")
+  const imageRatios = [
+    { id: "1:1", name: "Square", ratio: "1:1", width: 1024, height: 1024, description: "Perfect for social media posts and profile pictures" },
+    { id: "3:4", name: "Portrait", ratio: "3:4", width: 768, height: 1024, description: "Ideal for portraits and vertical compositions" },
+    { id: "4:3", name: "Landscape", ratio: "4:3", width: 1024, height: 768, description: "Great for traditional photography and presentations" },
+    { id: "16:9", name: "Widescreen", ratio: "16:9", width: 1024, height: 576, description: "Perfect for banners, headers, and video thumbnails" },
+    { id: "21:9", name: "Ultra-wide", ratio: "21:9", width: 1024, height: 438, description: "Excellent for panoramic views and cinematic shots" },
+  ]
+
+  const [selectedRatio, setSelectedRatio] = useState(imageRatios[3].id) // Default to 16:9
+
+  const getCurrentRatio = () => {
+    return imageRatios.find((ratio) => ratio.id === selectedRatio) || imageRatios[3]
   }
 
-  
-
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return
+    const currentRatio = getCurrentRatio()
+    await generateImage({
+      prompt,
+      imageWidth: currentRatio.width,
+      imageHeight: currentRatio.height,
+      numberOfImages: 1,
+      model: model
+    })
+    setPrompt("")
+  }
 
   return (
     <div className="h-full relative text-foreground">
@@ -66,6 +86,11 @@ export default function ImageStudio() {
 
               <div className="pointer-events-none absolute bottom-4 right-4 z-20">
                 <div className="flex items-center gap-3 pointer-events-auto">
+                  <RatioSelector
+                    selectedRatio={selectedRatio}
+                    setSelectedRatio={setSelectedRatio}
+                    imageRatios={imageRatios}
+                  />
                   <ModelSelector model={model} setModel={setModel} />
 
                   <Button
@@ -108,29 +133,30 @@ export default function ImageStudio() {
         </div>
 
         <div className="mt-20">
-         
-
           {images && Array.isArray(images) && images.some((img) => Boolean(img.url) && img.status === "generated") ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+            <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
               {images
                 .filter((img) => Boolean(img.url) && img.status === "generated")
                 .map((image, idx: number) => (
                   <div
                     key={image._id}
-                    className={`cursor-pointer 
-                    ${idx % 2 === 0 ? "animate-slide-in-left" : "animate-slide-in-right"}`}
+                    className={`break-inside-avoid cursor-pointer animate-fade-in-up`}
+                    style={{ animationDelay: `${idx * 100}ms` }}
                     onClick={() => setSelectedImage({ url: image.url!, prompt: image.prompt })}
                   >
-                    <Image
-                      src={image.url! || "/placeholder.svg"}
-                      alt={image.prompt}
-                      width={300}
-                      height={300}
-                      className="w-full h-auto object-cover aspect-square"
-                      quality={85}
-                      loading="lazy"
-                      unoptimized
-                    />
+                    <div className="relative group">
+                      <Image
+                        src={image.url! || "/placeholder.svg"}
+                        alt={image.prompt}
+                        width={300}
+                        height={300}
+                        className="w-full h-auto object-cover rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                        quality={85}
+                        loading="lazy"
+                        unoptimized
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-lg"></div>
+                    </div>
                   </div>
                 ))}
             </div>
