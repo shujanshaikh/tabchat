@@ -1,20 +1,19 @@
 "use client"
 
+import * as React from "react"
+import { Button } from "./ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "./ui/select"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip"
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "./ui/command"
+import { CheckIcon, ChevronDownIcon } from "@/components/icons"
 
-
-
+type RatioItem = { id: string; name: string; ratio: string; width: number; height: number; description: string }
 
 export function RatioSelector({
     selectedRatio,
@@ -23,82 +22,87 @@ export function RatioSelector({
 }: {
     selectedRatio: string
     setSelectedRatio: (value: string) => void
-    imageRatios: { id: string; name: string; ratio: string; width: number; height: number; description: string }[]
+    imageRatios: RatioItem[]
 }) {
-    const getCurrentRatio = () => {
-        return imageRatios.find((ratio) => ratio.id === selectedRatio) || imageRatios[0]
-      }
-    const currentRatio = getCurrentRatio()
+    const [open, setOpen] = React.useState(false)
+
+    const currentRatio = React.useMemo<RatioItem>(() => {
+        return imageRatios.find((r) => r.id === selectedRatio) || imageRatios[0]
+    }, [imageRatios, selectedRatio])
+
+    const handleSelect = (value: string) => {
+        setSelectedRatio(value)
+        setOpen(false)
+    }
 
     return (
-      <TooltipProvider>
-        <Select
-          value={selectedRatio}
-          onValueChange={(value) => setSelectedRatio(value)}
-        >
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <SelectTrigger className="h-10 px-4 rounded-xl bg-card/95 border border-border/30 hover:bg-card/98 transition-all duration-300">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-primary/80 shadow-sm" />
-                  <span className="font-medium text-sm">{currentRatio.name}</span>
-                  <span className="text-xs text-muted-foreground">({currentRatio.ratio})</span>
-                </div>
-              </SelectTrigger>
-            </TooltipTrigger>
-
-            <TooltipContent
-              side="top"
-              className="bg-card/95 backdrop-blur-xl border border-border/50 shadow-lg max-w-xs p-4"
-            >
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm">
-                  {currentRatio.name} ({currentRatio.ratio})
-                </h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {currentRatio.description}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {currentRatio.width} × {currentRatio.height} pixels
-                </p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-
-          <SelectContent className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-lg w-80 shadow-2xl p-2">
-            {imageRatios.map((ratio) => (
-              <SelectItem
-                key={ratio.id}
-                value={ratio.id}
-                className="w-full p-0 hover:bg-accent/30 focus:bg-accent/30 transition-colors"
-              >
-                <div className="flex flex-col items-start text-left w-full border border-border/40 rounded-md p-4 hover:border-border/70 transition-colors">
-                  <div className="flex items-center justify-between w-full mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${
-                        selectedRatio === ratio.id
-                          ? "bg-primary shadow-sm shadow-primary/30"
-                          : "bg-border"
-                      }`} />
-                      <span className="font-semibold text-sm">
-                        {ratio.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        ({ratio.ratio})
-                      </span>
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="h-8 px-2 rounded-lg bg-card/90 border border-border/40 hover:bg-card/95 hover:border-border/60 transition-all duration-200 text-xs min-w-[180px] justify-between"
+                >
+                    <div className="flex items-center gap-2 overflow-hidden">
+                        <RatioPreview width={currentRatio.width} height={currentRatio.height} />
+                        <div className="flex items-center gap-1.5 truncate">
+                            <span className="font-medium truncate">{currentRatio.name}</span>
+                            <span className="text-muted-foreground text-xs shrink-0">({currentRatio.ratio})</span>
+                        </div>
                     </div>
-                  </div>
-                  <p className="text-muted-foreground text-xs leading-relaxed mb-2">
-                    {ratio.description}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {ratio.width} × {ratio.height} pixels
-                  </p>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </TooltipProvider>
+                    <ChevronDownIcon className="size-4 opacity-60" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0 w-64" align="start">
+                <Command>
+                    <CommandInput placeholder="Search ratios…" />
+                    <CommandList>
+                        <CommandEmpty>No ratio found.</CommandEmpty>
+                        <CommandGroup>
+                            {imageRatios.map((ratio) => (
+                                <CommandItem
+                                    key={ratio.id}
+                                    value={ratio.name}
+                                    onSelect={() => handleSelect(ratio.id)}
+                                >
+                                    <div className="flex items-center gap-3 w-full">
+                                        <RatioPreview width={ratio.width} height={ratio.height} selected={selectedRatio === ratio.id} />
+                                        <div className="flex flex-col min-w-0">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <span className="text-sm font-medium truncate">{ratio.name}</span>
+                                                <span className="text-[11px] text-muted-foreground shrink-0">{ratio.ratio}</span>
+                                                <span className="text-[11px] text-muted-foreground shrink-0">{ratio.width}×{ratio.height}</span>
+                                            </div>
+                                            <span className="text-[11px] text-muted-foreground truncate">{ratio.description}</span>
+                                        </div>
+                                        <CheckIcon
+                                            className={`ml-auto size-4 ${selectedRatio === ratio.id ? "opacity-100" : "opacity-0"}`}
+                                        />
+                                    </div>
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
     )
-  }
+}
+
+function RatioPreview({ width, height, selected = false }: { width: number; height: number; selected?: boolean }) {
+    const max = 22
+    const aspect = height / width
+    const w = aspect <= 1 ? max : Math.max(10, Math.round(max / aspect))
+    const h = aspect <= 1 ? Math.max(10, Math.round(max * aspect)) : max
+
+    return (
+        <div className={`flex items-center justify-center size-7 rounded-md border ${selected ? "border-primary/70 bg-primary/5" : "border-border/70 bg-muted/20"}`}>
+            <div
+                className={`rounded-[3px] ${selected ? "bg-primary/60" : "bg-foreground/50"}`}
+                style={{ width: w, height: h }}
+            />
+        </div>
+    )
+}

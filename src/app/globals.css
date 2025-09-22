@@ -308,4 +308,19 @@
     @apply bg-sidebar/95 backdrop-blur-xl border border-sidebar-border/50
            text-sidebar-foreground shadow-lg;
   }
+
+  /* Remove focus borders from textarea */
+  textarea:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+  }
+
+  textarea:focus-visible {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    ring: none !important;
+  }
 }
