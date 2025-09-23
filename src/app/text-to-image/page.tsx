@@ -1,34 +1,9 @@
-"use client";
+import { preloadQuery } from "convex/nextjs";
+import { api } from "../../../convex/_generated/api";
+import TextToImageWrapper from "@/components/text-to-image-wrapper";
 
-import SignInForm from "@/components/sign-in-form";
-import SignUpForm from "@/components/sign-up-form";
-import ImageStudio from "@/components/text-to-image";
+export default async function TextToImage() {
+    const image = await preloadQuery(api.image.getImages);
 
-import {
-    Authenticated,
-    AuthLoading,
-    Unauthenticated,
-} from "convex/react";
-import { useState } from "react";
-
-export default function TextToImage() {
-    const [showSignIn, setShowSignIn] = useState(false);
-
-    return (
-        <>
-            <Authenticated>
-                < ImageStudio />
-            </Authenticated>
-            <Unauthenticated>
-                {showSignIn ? (
-                    <SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
-                ) : (
-                    <SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
-                )}
-            </Unauthenticated>
-            <AuthLoading>
-                <div>Loading...</div>
-            </AuthLoading>
-        </>
-    );
+    return <TextToImageWrapper preloadedImages={image} />;
 }

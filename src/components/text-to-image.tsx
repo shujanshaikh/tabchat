@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { useMutation, useQuery } from "convex/react"
+import { Preloaded, useMutation, usePreloadedQuery } from "convex/react"
 import { api } from "../../convex/_generated/api"
 import Image from "next/image"
 import ImagePopup from "@/components/image-open"
@@ -12,12 +12,14 @@ import { models } from "../../convex/model"
 import { RatioSelector } from "./ratio-selector"
 
 
-export default function ImageStudio() {
+
+
+export default function ImageStudio({images}: {images: Preloaded<typeof api.image.getImages>}) {
   const [prompt, setPrompt] = useState("")
   const [selectedImage, setSelectedImage] = useState<{ url: string; prompt: string } | null>(null)
 
   const generateImage = useMutation(api.images.generate.scheduleImageGeneration)
-  const images = useQuery(api.image.getImages)
+  const imagesData = usePreloadedQuery(images);
 
 
   const presets = [
@@ -68,7 +70,7 @@ export default function ImageStudio() {
         </div>
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+            {/* Left side - Text area */}
             <div className="lg:col-span-2">
               <div className="relative group p-4 -m-4">
                 <div className="absolute inset-0 bg-gradient-to-r from-card/10 via-card/20 to-card/10 backdrop-blur-2xl rounded-t-3xl -z-10 opacity-60 transition-all duration-700"></div>
@@ -119,6 +121,7 @@ export default function ImageStudio() {
               </div>
             </div>
 
+            
             <div className="lg:col-span-1">
               <div className="sticky top-6">
                 <div className="bg-card/30 backdrop-blur-xl rounded-2xl border border-border/50 p-4 shadow-lg">
@@ -155,9 +158,9 @@ export default function ImageStudio() {
         </div>
 
         <div className="mt-20">
-          {images && Array.isArray(images) && images.some((img) => Boolean(img.url) && img.status === "generated") ? (
+          {imagesData && Array.isArray(imagesData) && imagesData.some((img) => Boolean(img.url) && img.status === "generated") ? (
             <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-4 space-y-4">
-              {images
+              {imagesData
                 .filter((img) => Boolean(img.url) && img.status === "generated")
                 .map((image, idx: number) => (
                   <div
