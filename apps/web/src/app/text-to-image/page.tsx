@@ -1,5 +1,5 @@
 import { preloadQuery } from "convex/nextjs";
-import { api } from "../../../convex/_generated/api";
+import { api } from "@imageflow/convex/_generated/api";
 import TextToImageWrapper from "@/components/text-to-image-wrapper";
 
 export default async function TextToImage() {

@@ -1,13 +1,10 @@
 {
-   "name": "imageflow",
+  "name": "@imageflow/convex",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "convex"
-  ],
-  "module": "index.ts",
-  "type": "module",
+    "version": "0.0.0",
+    "type": "module",
   "devDependencies": {
+        "convex": "latest",
     "@types/bun": "latest"
   },
   "peerDependencies": {

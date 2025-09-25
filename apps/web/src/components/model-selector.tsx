@@ -1,6 +1,6 @@
 "use client"
 
-import { models } from "../../convex/model"
+import { models } from "@imageflow/convex/model"
 import {
   Select,
   SelectContent,
