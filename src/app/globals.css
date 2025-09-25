@@ -2,6 +2,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@import "uploadthing/tw/v4";
+@source "../node_modules/@uploadthing/react/dist"; 
+
 /* Dark variant support */
 @custom-variant dark (&:is(.dark *));
 

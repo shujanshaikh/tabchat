@@ -18,6 +18,7 @@ export const saveGeneratedImage = mutation({
       v.literal("running"),
     ),
     userId: v.string(),
+    url: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const {
@@ -30,6 +31,7 @@ export const saveGeneratedImage = mutation({
       storageId,
       body,
       userId,
+      url,
     } = args;
 
 
@@ -45,6 +47,7 @@ export const saveGeneratedImage = mutation({
       status: status,
       body: body,
       userId: userId,
+      url: url,
     });
     return generatedImageId;
   },

@@ -15,6 +15,7 @@ export const generateImages = internalAction({
     originalImageId: v.optional(v.id("images")),
     model : v.string(),
     userId: v.string(),
+    url : v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const program = Effect.gen(function* (_) {
@@ -27,6 +28,7 @@ export const generateImages = internalAction({
         originalImageId,
         model,
         userId,
+        url,
       } = args;
       const size = `${imageWidth}x${imageHeight}` as `${number}x${number}`;
       const { images } = yield* _(
@@ -37,6 +39,11 @@ export const generateImages = internalAction({
               prompt: prompt,
               size: size,
               n: numberOfImages,
+              providerOptions : {
+                fal : {
+                  image_url: url ?? "",
+                }
+              }
             }),
           catch: () => new Error("Error While generating image"),
         }),
@@ -78,6 +85,7 @@ export const generateImages = internalAction({
                 status: "generated",
                 storageId: args.storageId,
                 userId: userId,
+                url: url ?? "",
                 
               });
             },

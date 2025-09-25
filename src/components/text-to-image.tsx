@@ -10,13 +10,16 @@ import ImagePopup from "@/components/image-open"
 import ModelSelector from "@/components/model-selector"
 import { models } from "../../convex/model"
 import { RatioSelector } from "./ratio-selector"
+import ImageUploader from "@/components/image-uploader"
+import { imageRatios } from "@/utils/image-ratio"
 
 
 
 
-export default function ImageStudio({images}: {images: Preloaded<typeof api.image.getImages>}) {
+export default function ImageStudio({ images }: { images: Preloaded<typeof api.image.getImages> }) {
   const [prompt, setPrompt] = useState("")
   const [selectedImage, setSelectedImage] = useState<{ url: string; prompt: string } | null>(null)
+  const [url, setUrl] = useState("")
 
   const generateImage = useMutation(api.images.generate.scheduleImageGeneration)
   const imagesData = usePreloadedQuery(images);
@@ -30,15 +33,9 @@ export default function ImageStudio({images}: {images: Preloaded<typeof api.imag
 
   const [model, setModel] = useState(models[0].id)
 
-  const imageRatios = [
-    { id: "1:1", name: "Square", ratio: "1:1", width: 1024, height: 1024, description: "Perfect for social media posts and profile pictures" },
-    { id: "3:4", name: "Portrait", ratio: "3:4", width: 768, height: 1024, description: "Ideal for portraits and vertical compositions" },
-    { id: "4:3", name: "Landscape", ratio: "4:3", width: 1024, height: 768, description: "Great for traditional photography and presentations" },
-    { id: "16:9", name: "Widescreen", ratio: "16:9", width: 1024, height: 576, description: "Perfect for banners, headers, and video thumbnails" },
-    { id: "21:9", name: "Ultra-wide", ratio: "21:9", width: 1024, height: 438, description: "Excellent for panoramic views and cinematic shots" },
-  ]
 
-  const [selectedRatio, setSelectedRatio] = useState(imageRatios[3].id) // Default to 16:9
+
+  const [selectedRatio, setSelectedRatio] = useState(imageRatios[3].id)
 
   const getCurrentRatio = () => {
     return imageRatios.find((ratio) => ratio.id === selectedRatio) || imageRatios[3]
@@ -52,7 +49,8 @@ export default function ImageStudio({images}: {images: Preloaded<typeof api.imag
       imageWidth: currentRatio.width,
       imageHeight: currentRatio.height,
       numberOfImages: 1,
-      model: model
+      model: model,
+      url: url ?? ""
     })
     setPrompt("")
   }
@@ -62,7 +60,7 @@ export default function ImageStudio({images}: {images: Preloaded<typeof api.imag
       <div className="relative max-w-6xl mx-auto px-6 py-14 z-10">
         <div className="mb-12 text-center animate-fade-in-up">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground">
-          Generate Your Unique Digital Art
+            Generate Your Unique Digital Art
           </h2>
           <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Describe your dream, and we&apos;ll <span className="font-semibold">bring it to life</span>.
@@ -70,7 +68,7 @@ export default function ImageStudio({images}: {images: Preloaded<typeof api.imag
         </div>
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left side - Text area */}
+
             <div className="lg:col-span-2">
               <div className="relative group p-4 -m-4">
                 <div className="absolute inset-0 bg-gradient-to-r from-card/10 via-card/20 to-card/10 backdrop-blur-2xl rounded-t-3xl -z-10 opacity-60 transition-all duration-700"></div>
@@ -90,13 +88,14 @@ export default function ImageStudio({images}: {images: Preloaded<typeof api.imag
                   />
 
                   <div className="pointer-events-none absolute bottom-4 right-4 z-20">
-                    <div className="flex items-center gap-3 pointer-events-auto">
+                    <div className="flex items-center gap-3 pointer-events-auto whitespace-nowrap">
                       <RatioSelector
                         selectedRatio={selectedRatio}
                         setSelectedRatio={setSelectedRatio}
                         imageRatios={imageRatios}
                       />
                       <ModelSelector model={model} setModel={setModel} />
+                      <ImageUploader value={url} onChange={setUrl} size={40} />
 
                       <Button
                         onClick={handleGenerate}
@@ -121,7 +120,7 @@ export default function ImageStudio({images}: {images: Preloaded<typeof api.imag
               </div>
             </div>
 
-            
+
             <div className="lg:col-span-1">
               <div className="sticky top-6">
                 <div className="bg-card/30 backdrop-blur-xl rounded-2xl border border-border/50 p-4 shadow-lg">

@@ -7,6 +7,7 @@ export default defineSchema({
     prompt: v.string(),
     model: v.string(),
     userId : v.string(),
+    url : v.optional(v.string()),
     body: v.optional(v.string()),
     imageWidth: v.optional(v.number()),
     imageHeight: v.optional(v.number()),

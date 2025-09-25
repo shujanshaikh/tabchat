@@ -124,6 +124,7 @@ export const scheduleImageGeneration = mutation({
     numberOfImages: v.number(),
     storageId: v.optional(v.id("_storage")),
     originalImageId: v.optional(v.id("images")),
+    url: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const {
@@ -133,6 +134,7 @@ export const scheduleImageGeneration = mutation({
       numberOfImages,
       storageId,
       model,
+      url,
     } = args;
 
     const identity = await ctx.auth.getUserIdentity();
@@ -152,6 +154,7 @@ export const scheduleImageGeneration = mutation({
       status: "running",
       model: model!,
       userId: identity.subject,
+      url: url,
     });
 
     await ctx.scheduler.runAfter(0, internal.images.imageGen.generateImages, {
@@ -161,6 +164,7 @@ export const scheduleImageGeneration = mutation({
       numberOfImages: numberOfImages,
       model : model!,
       userId: identity.subject,
+      url: url,
     });
 
     return originalImageId;
