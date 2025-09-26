@@ -9,7 +9,7 @@ import {
     Authenticated,
     Unauthenticated,
 } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "@imageflow/convex/_generated/api";
 
 export default function TextToImageWrapper({ preloadedImages }: { preloadedImages: Preloaded<typeof api.image.getImages> }) {
     return (

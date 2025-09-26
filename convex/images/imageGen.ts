@@ -1,8 +1,8 @@
 import { v } from "convex/values";
-import { internalAction } from "../_generated/server";
+import { internalAction, mutation } from "../_generated/server";
 import { experimental_generateImage as generateImage } from "ai";
 import { Effect } from "effect";
-import { api } from "../_generated/api";
+import { api, internal } from "../_generated/api";
 import { fal } from "@ai-sdk/fal";
 
 export const generateImages = internalAction({
@@ -112,3 +112,79 @@ export const generateImages = internalAction({
     }
   },
 });
+
+
+export const generationSchedules = mutation({
+  args : {
+    prompt: v.string(),
+    imageWidth: v.number(),
+    imageHeight: v.number(),
+    model: v.string(),
+    numberOfImages: v.number(),
+    storageId: v.optional(v.id("_storage")),
+    originalImageId: v.optional(v.id("images")),
+    url: v.optional(v.string()),
+  }, handler : async  (ctx, args) => {
+    const program = Effect.gen(function* (_) {
+      const { prompt , imageHeight , imageWidth , numberOfImages , storageId , url , originalImageId , model } = args;
+
+     const identity = yield* _(
+      Effect.tryPromise({
+        try : () => ctx.auth.getUserIdentity(),
+        catch : () => new Error("Error while getting the user identity")
+      })
+     )
+
+     if(identity === null) {
+       throw new Error("The user is not authorized")
+     }
+
+     yield* _(
+      Effect.tryPromise({
+        try : () => 
+            ctx.db.insert("images", {
+            prompt: prompt,
+            body: storageId,
+            imageWidth: imageWidth,
+            imageHeight: imageHeight,
+            numberOfImages: numberOfImages,
+            createdAt: Date.now(),
+            status: "running",
+            model: model!,
+            userId: identity.subject,
+            url: url,
+          }),
+          catch : () => new Error("Error while inderting in the database")
+      })
+     )
+
+    
+     yield* _(
+      Effect.tryPromise({
+        try: async (): Promise<void> => {
+          await ctx.scheduler.runAfter(0, internal.images.imageGen.generateImages, {
+            prompt: prompt,
+            imageWidth: imageWidth,
+            imageHeight: imageHeight,
+            numberOfImages: numberOfImages,
+            model : model!,
+            userId: identity.subject,
+            url: url,
+          });
+        },
+        catch : () => new Error("Error while running the instant scheduler")
+      })
+     )
+  
+    }).pipe(
+      Effect.tapError((err ) => Effect.sync(() => console.error("Error in generateImages:", err)))
+    )
+
+    try {
+      return await Effect.runPromise(program);
+    } catch (error) {
+      console.error("Failed to execute generateImages program:", error);
+      throw error;
+    }
+  },
+})

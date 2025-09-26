@@ -21,7 +21,7 @@ export default function ImageStudio({ images }: { images: Preloaded<typeof api.i
   const [selectedImage, setSelectedImage] = useState<{ url: string; prompt: string } | null>(null)
   const [url, setUrl] = useState("")
 
-  const generateImage = useMutation(api.images.generate.scheduleImageGeneration)
+  const generateImage = useMutation(api.images.imageGen.generationSchedules)
   const imagesData = usePreloadedQuery(images);
 
 

@@ -1,5 +1,5 @@
 {
-   "name": "imageflow",
+  "name": "imageflow",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -8,9 +8,14 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "convex": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
-  }
+  },
+  "trustedDependencies": [
+    "@tailwindcss/oxide",
+    "unrs-resolver"
+  ]
 }
