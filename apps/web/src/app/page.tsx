@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import UserProfile from "@/components/user-profile";
 
 const CircularGallery = dynamic(() => import("@/components/CircularGallery"), { ssr: true });
 import { ModeToggle } from "@/components/mode-toggle";
@@ -30,7 +31,7 @@ export default function Home() {
           <div className="size-6 rounded-full bg-gradient-to-tr from-primary/80 via-accent/70 to-foreground/80" />
           <span className="text-sm font-medium tracking-widest text-muted-foreground">PICFLOW</span>
         </Link>
-        <ModeToggle />
+        <UserProfile />
       </div>
 
 

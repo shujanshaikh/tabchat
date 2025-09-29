@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         hostname: "uncommon-guanaco-317.convex.cloud",
         pathname: "/api/storage/**",
       },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
     ],
   },
 };
