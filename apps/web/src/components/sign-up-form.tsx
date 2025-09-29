@@ -1,154 +1,40 @@
-import { authClient } from "@/lib/auth-client";
-import { useForm } from "@tanstack/react-form";
-import { toast } from "sonner";
-import z from "zod";
+import { createAuthClient } from "better-auth/client";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { useRouter } from "next/navigation";
 
-export default function SignUpForm({
-	onSwitchToSignIn,
-}: {
-	onSwitchToSignIn: () => void;
-}) {
-	const router = useRouter();
+export default function SignUpForm() {
+	const authClient = createAuthClient();
 
-	const form = useForm({
-		defaultValues: {
-			email: "",
-			password: "",
-			name: "",
-		},
-		onSubmit: async ({ value }) => {
-			await authClient.signUp.email(
-				{
-					email: value.email,
-					password: value.password,
-					name: value.name,
-				},
-				{
-					onSuccess: () => {
-						router.push("/dashboard");
-						toast.success("Sign up successful");
-					},
-					onError: (error) => {
-						toast.error(error.error.message || error.error.statusText);
-					},
-				},
-			);
-		},
-		validators: {
-			onSubmit: z.object({
-				name: z.string().min(2, "Name must be at least 2 characters"),
-				email: z.email("Invalid email address"),
-				password: z.string().min(8, "Password must be at least 8 characters"),
-			}),
-		},
-	});
+	const signIn = async () => {
+		await authClient.signIn.social({
+			provider: "google",
+		});
+	};
 
 	return (
 		<div className="mx-auto w-full mt-10 max-w-md p-6">
-			<h1 className="mb-6 text-center text-3xl font-bold">Create Account</h1>
-
-			<form
-				onSubmit={(e) => {
-					e.preventDefault();
-					e.stopPropagation();
-					form.handleSubmit();
-				}}
-				className="space-y-4"
+			<h1 className="mb-6 text-center text-3xl font-bold">Continue</h1>
+			<Button
+				onClick={signIn}
+				variant="outline"
+				size="lg"
+				className="w-full gap-3"
 			>
-				<div>
-					<form.Field name="name">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Name</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
-
-				<div>
-					<form.Field name="email">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Email</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									type="email"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
-
-				<div>
-					<form.Field name="password">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Password</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									type="password"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-				</div>
-
-				<form.Subscribe>
-					{(state) => (
-						<Button
-							type="submit"
-							className="w-full"
-							disabled={!state.canSubmit || state.isSubmitting}
-						>
-							{state.isSubmitting ? "Submitting..." : "Sign Up"}
-						</Button>
-					)}
-				</form.Subscribe>
-			</form>
-
-			<div className="mt-4 text-center">
-				<Button
-					variant="link"
-					onClick={onSwitchToSignIn}
-					className="text-indigo-600 hover:text-indigo-800"
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 533.5 544.3"
+					className="size-5"
+					aria-hidden
 				>
-					Already have an account? Sign In
-				</Button>
-			</div>
+					<path fill="#4285F4" d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.2H272v95.1h147c-6.4 34.4-25.9 63.6-55.2 83.1v68h89.2c52.2-48.1 80.5-119 80.5-196z"/>
+					<path fill="#34A853" d="M272 544.3c74.7 0 137.4-24.7 183.2-67.1l-89.2-68c-24.8 16.7-56.5 26.6-94 26.6-72 0-133.1-48.6-154.9-114.1H25.7v71.6C71.2 483.1 165.1 544.3 272 544.3z"/>
+					<path fill="#FBBC05" d="M117.1 321.7c-10.9-32.8-10.9-68.3 0-101.1V149H25.7c-47.7 95.4-47.7 208.8 0 304.2l91.4-71.5z"/>
+					<path fill="#EA4335" d="M272 107.7c40.6-.6 79.6 14.9 109.1 43.6l81.4-81.4C408.6 24.2 342 0 272 0 165.1 0 71.2 61.2 25.7 149l91.4 71.6C138.8 156.1 200 107.7 272 107.7z"/>
+				</svg>
+				<span className="font-medium">Continue with Google</span>
+			</Button>
+			<p className="mt-3 text-center text-xs text-muted-foreground">
+				By continuing, you agree to our terms and privacy policy.
+			</p>
 		</div>
 	);
 }

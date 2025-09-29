@@ -65,7 +65,7 @@ export function Sidepanel() {
                     <SidebarGroupContent>
                         <SidebarMenu className="space-y-1">
                             <SidebarMenuButton onClick={() => router.push("/generate")} className="rounded-md" tooltip="Text to Image" data-active="true">
-                                <span>Generate</span>
+                                <span>Create</span>
                             </SidebarMenuButton>
                             <SidebarMenuButton onClick={() => router.push("/image-to-image")} className="rounded-md" tooltip="Image to Image">
                                 <span>Edit</span>

@@ -38,9 +38,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SidebarProvider >
+            <SidebarProvider defaultOpen={false} >
 
-              <Sidepanel />
+              <Sidepanel  />
               <SidebarFloatingTrigger />
               <SidebarInset className="h-screen overflow-auto">
                 {children}

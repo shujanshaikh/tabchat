@@ -1,17 +1,14 @@
 "use client";
 
 import SignInForm from "@/components/sign-in-form";
-import SignUpForm from "@/components/sign-up-form";
 
 import {
 	Authenticated,
 	AuthLoading,
 	Unauthenticated,
 } from "convex/react";
-import { useState } from "react";
 
 export default function DashboardPage() {
-	const [showSignIn, setShowSignIn] = useState(false);
 
 	return (
 		<>
@@ -21,11 +18,7 @@ export default function DashboardPage() {
 				</div>
 			</Authenticated>
 			<Unauthenticated>
-				{showSignIn ? (
-					<SignInForm onSwitchToSignUp={() => setShowSignIn(false)} />
-				) : (
-					<SignUpForm onSwitchToSignIn={() => setShowSignIn(true)} />
-				)}
+				<SignInForm />
 			</Unauthenticated>
 			<AuthLoading>
 				<div>Loading...</div>
