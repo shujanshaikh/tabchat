@@ -1,6 +1,6 @@
 import { type Config } from "@convex-dev/agent";
-import { openai } from "@ai-sdk/openai";
 
 export const defaultConfig = {
-  languageModel: openai("gpt-4o-mini"),
+  languageModel: "openai/gpt-5-mini",
+  
 } satisfies Config;

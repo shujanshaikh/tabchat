@@ -16,6 +16,8 @@ import { ArrowUp, StopCircle } from "lucide-react";
 import { ToolUIPart } from "ai";
 import { useDemoThread } from "@/hooks/use-demo-thread";
 import LoadingDots from "@/components/loading-dots";
+import { chatModel } from "@imageflow/convex/chatModel";
+import ChatModelSelector from "@/components/chat-model-selector";
 
 
 export default function ChatStreaming() {
@@ -42,6 +44,10 @@ export default function ChatStreaming() {
 function Story({ threadId }: { threadId: string }) {
   // Loads the messages as UIMessages (where all tool calls and assistant
   // responses are parts in one message). See below for other options.
+
+
+
+  const [selectedModel, setSelectedModel] = useState(chatModel[0].id);
   const {
     results: messages,
     status,
@@ -51,7 +57,7 @@ function Story({ threadId }: { threadId: string }) {
     { threadId },
     { initialNumItems: 10, stream: true },
   );
-
+  
   const sendMessage = useMutation(
     api.chatStreaming.initiateAsyncStreaming,
   ).withOptimisticUpdate(
@@ -82,7 +88,7 @@ function Story({ threadId }: { threadId: string }) {
   function onSendClicked() {
     if (prompt.trim() === "") return;
     const isFirstMessage = messages.length === 0;
-    void sendMessage({ threadId, prompt }).catch(() => setPrompt(prompt));
+    void sendMessage({ threadId, prompt, model: selectedModel }).catch(() => setPrompt(prompt));
     setPrompt("");
     
     // Update thread title after first message is sent
@@ -104,31 +110,33 @@ function Story({ threadId }: { threadId: string }) {
     <div className="flex-1 flex flex-col max-w-5xl mx-auto w-full px-4 md:px-6 overflow-hidden">
       {/* Messages area - scrollable */}
       <div className="flex-1 overflow-y-auto">
-        <div className="pt-16 pb-6 space-y-3 px-1">
-          {messages.length > 0 ? (
-            <>
-              {status === "CanLoadMore" && (
-                <div className="flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => loadMore(4)}
-                    className="text-muted-foreground"
-                  >
-                    Load more messages
-                  </Button>
-                </div>
-              )}
-              {messages.map((m, index) => (
-                <Message 
-                  key={m.key} 
-                  message={m} 
-                  previousMessageRole={index > 0 ? messages[index - 1].role : undefined}
-                />
-              ))}
-              <div ref={messagesEndRef} />
-            </>
-          ) : null}
+        <div className="pt-16 pb-6 space-y-3">
+          <div className="max-w-[80%] mx-auto">
+            {messages.length > 0 ? (
+              <>
+                {status === "CanLoadMore" && (
+                  <div className="flex justify-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => loadMore(4)}
+                      className="text-muted-foreground"
+                    >
+                      Load more messages
+                    </Button>
+                  </div>
+                )}
+                {messages.map((m, index) => (
+                  <Message 
+                    key={m.key} 
+                    message={m} 
+                    previousMessageRole={index > 0 ? messages[index - 1].role : undefined}
+                  />
+                ))}
+                <div ref={messagesEndRef} />
+              </>
+            ) : null}
+          </div>
         </div>
       </div>
 
@@ -152,7 +160,7 @@ function Story({ threadId }: { threadId: string }) {
                     onSendClicked();
                   }
                 }}
-                className="w-full min-h-[120px] max-h-[200px] rounded-t-2xl rounded-b-none border-0 bg-transparent placeholder:text-muted-foreground/70 resize-none pr-12 pb-12 pt-4 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="w-full min-h-[120px] max-h-[200px] rounded-t-2xl rounded-b-none border-0 bg-transparent placeholder:text-muted-foreground/70 resize-none pr-12 pb-10 pt-4 focus-visible:ring-0 focus-visible:ring-offset-0"
                 placeholder={
                   messages.length > 0
                     ? "Continue the conversation..."
@@ -160,6 +168,9 @@ function Story({ threadId }: { threadId: string }) {
                 }
                 disabled={isStreaming}
               />
+              <div className="absolute bottom-3 left-3 flex items-center">
+                <ChatModelSelector model={selectedModel} setModel={setSelectedModel} />
+              </div>
               <div className="absolute bottom-3 right-3 flex gap-2">
                 {isStreaming ? (
                   <Button
@@ -218,18 +229,18 @@ function Message({ message, previousMessageRole }: { message: UIMessage; previou
         className={cn(
           "group relative whitespace-pre-wrap transition-all",
           isUser
-            ? "rounded-2xl px-4 py-3 bg-primary text-primary-foreground max-w-[60%] shadow-sm mr-4"
-            : "w-[80%] px-2 py-4",
+            ? "rounded-2xl px-4 py-3 bg-primary text-primary-foreground max-w-[75%] shadow-sm"
+            : "w-full px-2 py-4",
           {
             "bg-destructive/10 border-destructive/20 text-destructive rounded-2xl px-4 py-3": isFailed,
           },
         )}
       >
-        {reasoningText && (
+        {reasoningText &&  (
           <div className="mb-3 pb-3 border-b border-border/30">
             <div className="text-xs text-muted-foreground/80 flex items-start gap-2">
-             
-              <span className="flex-1 leading-relaxed">{reasoningText}</span>
+              
+              <span  className="flex-1 leading-relaxed"> {reasoningText}</span>
             </div>
           </div>
         )}

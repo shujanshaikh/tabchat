@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { internalAction } from "./_generated/server";
 import { components, internal } from "./_generated/api";
-import { agent } from "./chat/agent";
+import { agent, chatBetterAgent } from "./chat/agent";
 import { authorizeThreadAccess } from "./thread";
 import { abortStream, listUIMessages, syncStreams, vStreamArgs } from "@convex-dev/agent";
 import { paginationOptsValidator } from "convex/server";
@@ -10,10 +10,10 @@ import { paginationOptsValidator } from "convex/server";
 
 
 export const initiateAsyncStreaming = mutation({
-    args: { prompt: v.string(), threadId: v.string() },
-    handler: async (ctx, { prompt, threadId }) => {
+    args: { prompt: v.string(), threadId: v.string() , model: v.string() },
+    handler: async (ctx, { prompt, threadId, model }) => {
       await authorizeThreadAccess(ctx, threadId);
-      const { messageId } = await agent.saveMessage(ctx, {
+      const { messageId } = await chatBetterAgent(model).saveMessage(ctx, {
         threadId,
         prompt,
         skipEmbeddings: true,
@@ -21,18 +21,20 @@ export const initiateAsyncStreaming = mutation({
       await ctx.scheduler.runAfter(0, internal.chatStreaming.streamAsync, {
         threadId,
         promptMessageId: messageId,
+        model,
       });
     },
   });
   
   export const streamAsync = internalAction({
-    args: { promptMessageId: v.string(), threadId: v.string() },
-    handler: async (ctx, { promptMessageId, threadId }) => {
-      const result = await agent.streamText(
+    args: { promptMessageId: v.string(), threadId: v.string(), model: v.string() },
+    handler: async (ctx, { promptMessageId, threadId, model }) => {
+      const result = await chatBetterAgent(model).streamText(
         ctx,
         { threadId },
         { promptMessageId },
-        { saveStreamDeltas: { chunking: "word", throttleMs: 20 } },
+        { saveStreamDeltas: { chunking: "word", throttleMs: 100 } },
+        
       );
       await result.consumeStream();
     },
