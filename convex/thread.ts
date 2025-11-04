@@ -79,6 +79,16 @@ export const createNewThread = mutation({
       await thread.updateMetadata({ title, summary });
     },
   });
+
+
+  export const deleteThread = mutation({
+    args: { threadId: v.string() },
+    handler: async (ctx, { threadId }) => {
+      await authorizeThreadAccess(ctx, threadId, true);
+      await ctx.runMutation(components.agent.threads.deleteAllForThreadIdAsync, { threadId });
+      return true;
+    },
+  })  
   
   export async function authorizeThreadAccess(
     ctx: QueryCtx | MutationCtx | ActionCtx,

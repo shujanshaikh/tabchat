@@ -9,7 +9,9 @@ import {
     SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
+    SidebarMenuAction,
     SidebarMenuButton,
+    SidebarMenuItem,
     SidebarRail,
     SidebarSeparator,
     SidebarTrigger,
@@ -21,7 +23,7 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { api } from "../../convex/_generated/api";
 import { useQuery, useMutation, useConvexAuth } from "convex/react";
-import { MessageSquare, Plus, Loader2 } from "lucide-react";
+import { MessageSquare, Plus, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 
@@ -46,7 +48,10 @@ export function Sidepanel() {
     const pathname = usePathname();
     const [activeThreadId, setActiveThreadId] = useState<string | undefined>();
     const { isAuthenticated } = useConvexAuth();
-    
+    const deleteThread = useMutation(api.thread.deleteThread);
+    const handleDeleteThread = async (threadId: string) => {
+        await deleteThread({ threadId });
+    };
     const threads = useQuery(api.thread.listThreads, {
         paginationOpts: {
             endCursor: null,
@@ -210,20 +215,45 @@ export function Sidepanel() {
                                         const isActive = activeThreadId === thread._id;
                                         const displayText = thread.title || "Untitled Chat";
                                         return (
-                                            <SidebarMenuButton
-                                                key={thread._id}
-                                                onClick={() => handleThreadClick(thread._id)}
-                                                className={cn(
-                                                    "rounded-md justify-start h-auto py-2 px-3 group",
-                                                    isActive && "bg-primary/10 text-primary font-medium"
-                                                )}
-                                                tooltip={displayText}
-                                            >
-                                                <MessageSquare className="h-4 w-4 mr-2 flex-shrink-0" />
-                                                <span className="truncate text-sm flex-1 text-left">
-                                                    {displayText}
-                                                </span>
-                                            </SidebarMenuButton>
+                                            <SidebarMenuItem key={thread._id}>
+                                                <SidebarMenuButton
+                                                    onClick={() => handleThreadClick(thread._id)}
+                                                    className={cn(
+                                                        "rounded-md justify-start h-auto py-2 px-3 group/item relative",
+                                                        isActive && "bg-primary/10 text-primary font-medium"
+                                                    )}
+                                                    tooltip={displayText}
+                                                >
+                                                    {!isActive && (
+                                                        <div
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteThread(thread._id);
+                                                            }}
+                                                            className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center w-5 h-5 rounded hover:bg-destructive/10 hover:text-destructive text-muted-foreground cursor-pointer z-10"
+                                                            title="Delete thread"
+                                                            role="button"
+                                                            tabIndex={0}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === "Enter" || e.key === " ") {
+                                                                    e.preventDefault();
+                                                                    e.stopPropagation();
+                                                                    handleDeleteThread(thread._id);
+                                                                }
+                                                            }}
+                                                        >
+                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                        </div>
+                                                    )}
+                                                    <MessageSquare className={cn(
+                                                        "h-4 w-4 mr-2 flex-shrink-0 transition-all",
+                                                        !isActive && "ml-0 group-hover/item:ml-6"
+                                                    )} />
+                                                    <span className="truncate text-sm flex-1 text-left">
+                                                        {displayText}
+                                                    </span>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
                                         );
                                     })}
                                 </SidebarMenu>
