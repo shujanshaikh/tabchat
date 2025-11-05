@@ -60,11 +60,13 @@ function SidebarProvider({
   className,
   style,
   children,
+  headerContent,
   ...props
 }: React.ComponentProps<"div"> & {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  headerContent?: React.ReactNode
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
@@ -139,11 +141,18 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full",
+            "group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full relative",
             className
           )}
           {...props}
         >
+          {headerContent && (
+            <div className="absolute -top-2 -right-2 w-16 h-16 bg-sidebar rounded-bl-[2rem] z-20">
+              <div className="absolute top-3 right-3">
+                {headerContent}
+              </div>
+            </div>
+          )}
           {children}
         </div>
       </TooltipProvider>

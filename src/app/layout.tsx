@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Sidepanel } from "@/components/side-panel";
 import SidebarFloatingTrigger from "@/components/sidebar-floating-trigger";
+import { SidebarThemeToggle } from "@/components/sidebar-theme-toggle";
 import Script from "next/script";
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,7 +52,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SidebarProvider defaultOpen={true} >
+            <SidebarProvider defaultOpen={true} headerContent={<SidebarThemeToggle />}>
 
               <Sidepanel  />
               <SidebarFloatingTrigger />

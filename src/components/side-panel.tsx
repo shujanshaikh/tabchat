@@ -17,7 +17,6 @@ import {
     SidebarTrigger,
     useSidebar,
 } from "@/components/ui/sidebar"
-import { ModeToggle } from "@/components/mode-toggle"
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import Link from "next/link";
@@ -26,22 +25,6 @@ import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { MessageSquare, Plus, Loader2, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
-
-function SidebarThemeToggleWrapper() {
-    const { state, setOpen, isMobile, setOpenMobile } = useSidebar()
-    const handleClick = () => {
-        if (isMobile) {
-            setOpenMobile(true)
-        } else if (state === "collapsed") {
-            setOpen(true)
-        }
-    }
-    return (
-        <div onClick={handleClick}>
-            <ModeToggle />
-        </div>
-    )
-}
 
 export function Sidepanel() {
     const router = useRouter();
@@ -123,26 +106,20 @@ export function Sidepanel() {
         >
             <SidebarRail />
             <SidebarHeader className="sp-header relative">
-                
-            <h1 className="text-lg sm:text-lg px-10 py-3 lg:text-xl xl:text-2xl font-bold tracking-tight leading-tight">
-                <Link href="/">
-                  <span className="bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
-                    tab.chat
-                  </span>
-                </Link>
-            </h1>
-                <div className="absolute -top-2 -right-2 w-16 h-16 bg-sidebar rounded-bl-[2rem] border-l border-b border-border">
-                    <div className="absolute top-3 right-3">
-                        <SidebarThemeToggleWrapper />
-                    </div>
+                <div className="flex items-center justify-center px-2 relative">
+                    <SidebarTrigger className="h-7 w-7 rounded-md hover:bg-muted transition-colors absolute left-2" />
+                    <h1 className="text-lg sm:text-lg py-3 lg:text-xl xl:text-2xl font-bold tracking-tight leading-tight text-center">
+                        <Link href="/">
+                          <span className="bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+                            tab.chat
+                          </span>
+                        </Link>
+                    </h1>
                 </div>
             </SidebarHeader>
   
         
             <SidebarContent className="sp-content px-2 py-2 overflow-hidden flex flex-col">
-            <div className="flex items-center justify-end px-2 pb-2">
-                <SidebarTrigger className="h-7 w-7 rounded-md hover:bg-muted transition-colors" />
-            </div>
             <SidebarSeparator />
                 <SidebarGroup>
                     <SidebarGroupContent>
@@ -169,7 +146,7 @@ export function Sidepanel() {
                             size="sm"
                             onClick={handleNewChat}
                             disabled={isCreatingThread || !isAuthenticated}
-                            className="h-7 rounded-md w-full justify-center"
+                            className="h-7 rounded-md w-full justify-center bg-gradient-to-r from-primary/20 via-primary/30 to-accent/20 hover:from-primary/30 hover:via-primary/40 hover:to-accent/30"
                             title={isAuthenticated ? "New Thread" : "Sign in to create a new thread"}
                         >
                             {isCreatingThread ? (

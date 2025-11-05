@@ -190,7 +190,7 @@ export function Chat({ threadId }: { threadId: string }) {
         <ConversationScrollButton />
       </Conversation>
 
-      <div className="sticky bottom-0 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 pt-6 pb-0 border-t border-border/50">
+      <div className="sticky bottom-0 bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 pb-0">
         <form
           className="w-full"
           onSubmit={(e) => {
@@ -199,7 +199,7 @@ export function Chat({ threadId }: { threadId: string }) {
           }}
         >
           <div className="flex-1 relative max-w-[95%] sm:max-w-[90%] md:max-w-[80%] mx-auto">
-            <div className="relative rounded-t-2xl rounded-b-none border border-border/60 bg-background/90 backdrop-blur-md shadow-xl shadow-black/10 dark:shadow-black/20 ring-1 ring-border/20">
+            <div className="relative rounded-t-2xl rounded-b-none border border-border/60 bg-background/90 backdrop-blur-xl shadow-xl shadow-black/10 dark:shadow-black/20 ring-1 ring-border/20">
               <Textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
@@ -209,7 +209,7 @@ export function Chat({ threadId }: { threadId: string }) {
                     onSendClicked();
                   }
                 }}
-                className="w-full min-h-[140px] max-h-[400px] rounded-t-2xl rounded-b-none border-0 bg-transparent placeholder:text-muted-foreground/60 resize-none pr-12 md:pr-14 pb-16 md:pb-12 pt-5 px-4 md:px-5 text-base focus-visible:ring-0 focus-visible:ring-offset-0 leading-relaxed"
+                className="w-full min-h-[120px] max-h-[400px] rounded-t-2xl rounded-b-none border-0 bg-transparent placeholder:text-muted-foreground/60 resize-none pr-12 md:pr-14 pb-16 md:pb-12 pt-5 px-4 md:px-5 text-base focus-visible:ring-0 focus-visible:ring-offset-0 leading-relaxed"
                 placeholder={
                   messages.length > 0
                     ? "Continue the conversation..."
@@ -226,7 +226,7 @@ export function Chat({ threadId }: { threadId: string }) {
                     type="button"
                     onClick={() => setWebSearch(!webSearch)}
                     className={cn(
-                      "inline-flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-lg transition-all cursor-pointer flex-shrink-0",
+                      "inline-flex h-8 md:h-9 items-center justify-center gap-1.5 md:gap-2 px-3 md:px-4 rounded-full transition-all cursor-pointer flex-shrink-0",
                       webSearch
                         ? "text-primary bg-primary/10 hover:bg-primary/20 border border-primary/30"
                         : "text-muted-foreground bg-muted/60 hover:bg-muted hover:text-foreground border border-border/40 shadow-sm hover:shadow-md",
@@ -235,6 +235,7 @@ export function Chat({ threadId }: { threadId: string }) {
                     title={webSearch ? "Disable Web Search" : "Enable Web Search"}
                   >
                     <Globe className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                    <span className="text-[10px] md:text-xs font-medium whitespace-nowrap">Web search</span>
                   </button>
                   <UploadButton
                     endpoint="imageUploader"
@@ -254,7 +255,7 @@ export function Chat({ threadId }: { threadId: string }) {
                       allowedContent: "attachment",
                       button: () => (
                         <span className={cn(
-                          "inline-flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-lg transition-all cursor-pointer flex-shrink-0",
+                          "inline-flex h-8 w-8 md:h-9 md:w-9 items-center justify-center rounded-full transition-all cursor-pointer flex-shrink-0",
                           isUploading || isStreaming
                             ? "text-muted-foreground/50 cursor-not-allowed bg-muted/50"
                             : "text-muted-foreground bg-muted/60 hover:bg-muted hover:text-foreground border border-border/40 shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
