@@ -72,7 +72,7 @@ export const createNewThread = mutation({
             title: z.string().describe("The new title for the thread"),
             summary: z.string().describe("The new summary for the thread"),
           }),
-          prompt: "Generate a title and summary for this thread.",
+          prompt: "Generate a title and summary for this thread in 3-4 words.",
         },
         { storageOptions: { saveMessages: "none" } },
       );

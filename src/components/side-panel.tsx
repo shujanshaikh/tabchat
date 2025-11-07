@@ -208,7 +208,7 @@ export function Sidepanel() {
                                                                 e.stopPropagation();
                                                                 handleDeleteThread(thread._id);
                                                             }}
-                                                            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded transition-colors text-muted-foreground cursor-pointer z-10 hover:bg-destructive/10 hover:text-destructive"
+                                                            className="flex h-6 w-0 items-center justify-center rounded transition-all duration-200 ease-out opacity-0 scale-95 -translate-x-1 group-hover/item:opacity-100 group-hover/item:scale-100 group-hover/item:translate-x-0 group-hover/item:w-6 group-hover/item:mr-2 overflow-hidden text-muted-foreground cursor-pointer z-10 hover:bg-destructive/10 hover:text-destructive flex-shrink-0"
                                                             title="Delete thread"
                                                             aria-label="Delete thread"
                                                             role="button"
@@ -221,14 +221,11 @@ export function Sidepanel() {
                                                                 }
                                                             }}
                                                         >
-                                                            <Trash2 className="h-3.5 w-3.5" />
+                                                            <Trash2 className="h-3.5 w-3.5 flex-shrink-0" />
                                                         </div>
                                                     )}
                                                     <MessageSquare className="h-4 w-4 mr-2 flex-shrink-0" />
-                                                    <span className={cn(
-                                                        "truncate text-sm flex-1 text-left",
-                                                        !isActive && "pr-7"
-                                                    )}>
+                                                    <span className="truncate text-sm flex-1 text-left">
                                                         {displayText}
                                                     </span>
                                                 </SidebarMenuButton>
