@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ImageFlow
+
+ImageFlow is a Next.js application that combines ai powered image generation with intelligent chat capabilities. Create images and chat with ai, all in one place.
+
+## Tech Stack
+
+- **Next.js** - React framework for production
+- **Convex** - Backend-as-a-Service for real-time data and functions
+- **AI SDK** - AI model integrations for chat and image generation
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first CSS framework
+
+## Prerequisites
+
+- Node.js (v18 or higher)
+- pnpm (package manager)
 
 ## Getting Started
 
-First, run the development server:
+### Step 1: Install Dependencies
+
+First, install all project dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm i
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Step 2: Setup Convex
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+In your first terminal, start the Convex development server. This will set up your Convex backend and sync your functions:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm convex dev
+```
+
+This command will:
+- Initialize your Convex project (if not already done)
+- Start the Convex development server
+- Watch for changes in your Convex functions
+- Provide you with deployment URLs and configuration
+
+**Note:** Keep this terminal running throughout development.
+
+### Step 3: Start the Development Server
+
+Open a **second terminal** and start the Next.js development server:
+
+```bash
+pnpm dev
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000).
+
+### Development Workflow
+
+1. **Terminal 1**: Run `pnpm convex dev` (keep running)
+2. **Terminal 2**: Run `pnpm dev` (keep running)
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+Both servers will automatically reload when you make changes to your code.
+
+## Project Structure
+
+- `/src/app` - Next.js app router pages and routes
+- `/src/components` - React components and UI elements
+- `/convex` - Convex backend functions and schema
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Convex Documentation](https://docs.convex.dev)
+- [AI SDK Documentation](https://sdk.vercel.ai/docs)
