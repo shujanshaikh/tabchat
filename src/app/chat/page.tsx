@@ -1,5 +1,6 @@
 "use client"
 import { useMutation, useAction } from "convex/react";
+import { useStoreValue } from "@simplestack/store/react";
 import { api } from "../../../convex/_generated/api";
 import {
   optimisticallySendMessage,
@@ -21,8 +22,6 @@ import {
   AuthLoading,
 } from "convex/react";
 import SignInUpWrapper from "@/components/sign-in-up-wrapper";
-
-import { chatModel } from "../../../convex/chatModel";
 import {
   Conversation,
   ConversationContent,
@@ -46,6 +45,7 @@ import { ToolUIPart } from "ai";
 import { WebSearchParts } from "@/components/web-search-parts";
 import RetryPromptModel from "@/components/retry-prompt-model";
 import { Copy } from "lucide-react";
+import { prompt, selectedModel, urls, webSearch } from "@/lib/store";
 
 
 export default function ChatStreaming() {
@@ -103,12 +103,11 @@ export default function ChatStreaming() {
 }
 
 export function Chat({ threadId }: { threadId: string }) {
-  const [selectedModel, setSelectedModel] = useState(chatModel[0].id);
-  const [prompt, setPrompt] = useState("");
-  const [urls, setUrls] = useState<string[]>([]);
+  const promptValue = useStoreValue(prompt);
+  const urlsValue = useStoreValue(urls);
+  const selectedModelValue = useStoreValue(selectedModel);
   const [isUploading, setIsUploading] = useState(false);
-  const [retries, setRetries] = useState(0);
-  const [webSearch, setWebSearch] = useState(false);
+  const webSearchValue = useStoreValue(webSearch);
   const {
     results: messages,
     status,
@@ -136,21 +135,21 @@ export function Chat({ threadId }: { threadId: string }) {
   }, [threadId]);
 
   function onSendClicked() {
-    const text = prompt.trim();
+    const text = promptValue.trim();
     if (!text) return;
     
     const isFirstMessage = messages.length === 0;
     void sendMessage({ 
       threadId, 
       prompt: text, 
-      model: selectedModel,
-      urls: urls.length > 0 ? urls : undefined,
-      webSearch,
+      model: selectedModelValue,
+      urls: urlsValue.length > 0 ? urlsValue : undefined,
+      webSearch: webSearchValue,
     }).catch(() => {
     });
     
-    setPrompt("");
-    setUrls([]); 
+    prompt.set("");
+    urls.set([]); 
     
     if (isFirstMessage && !titleUpdatedRef.current) {
       titleUpdatedRef.current = true;
@@ -186,7 +185,7 @@ export function Chat({ threadId }: { threadId: string }) {
               </div>
             )}
             {messages.map((m) => (
-              <ChatMessage key={m.key} message={m} threadId={threadId} selectedModel={selectedModel} urls={urls} webSearch={webSearch} />
+              <ChatMessage key={m.key} message={m} threadId={threadId} webSearch={webSearchValue} />
             ))}
           </div>
         </ConversationContent>
@@ -204,10 +203,10 @@ export function Chat({ threadId }: { threadId: string }) {
           <div className="flex-1 relative w-full max-w-[95%] sm:max-w-[88%] md:max-w-3xl mx-auto">
             <div className="relative rounded-t-2xl rounded-b-none border border-border/60 bg-background/90 backdrop-blur-xl shadow-xl shadow-black/10 dark:shadow-black/20 ring-1 ring-border/20">
               <Textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                value={promptValue}
+                onChange={(e) => prompt.set(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey && prompt.trim()) {
+                  if (e.key === "Enter" && !e.shiftKey && promptValue.trim()) {
                     e.preventDefault();
                     onSendClicked();
                   }
@@ -223,19 +222,19 @@ export function Chat({ threadId }: { threadId: string }) {
               <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 right-12 md:right-auto flex items-center gap-1 md:gap-1.5 md:gap-2 flex-wrap max-w-[calc(100%-3.5rem)] md:max-w-none">
                 <div className="flex items-center gap-1 md:gap-1.5 md:gap-2 flex-shrink-0 flex-wrap">
                   <div className="scale-90 md:scale-100 origin-left">
-                    <ChatModelSelector model={selectedModel} setModel={setSelectedModel} />
+                    <ChatModelSelector model={selectedModelValue}/>
                   </div>
                   <button
                     type="button"
-                    onClick={() => setWebSearch(!webSearch)}
+                    onClick={() => webSearch.set(!webSearchValue)}
                     className={cn(
                       "inline-flex h-8 md:h-9 items-center justify-center gap-1.5 md:gap-2 px-3 md:px-4 rounded-full transition-all cursor-pointer flex-shrink-0",
-                      webSearch
+                      webSearchValue
                         ? "text-primary bg-primary/10 hover:bg-primary/20 border border-primary/30"
                         : "text-muted-foreground bg-muted/60 hover:bg-muted hover:text-foreground border border-border/40 shadow-sm hover:shadow-md",
                       "hover:scale-105 active:scale-95"
                     )}
-                    title={webSearch ? "Disable Web Search" : "Enable Web Search"}
+                    title={webSearchValue ? "Disable Web Search" : "Enable Web Search"}
                   >
                     <Globe className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     <span className="text-[10px] md:text-xs font-medium whitespace-nowrap">Web search</span>
@@ -248,7 +247,7 @@ export function Chat({ threadId }: { threadId: string }) {
                       setIsUploading(false);
                       if (res && res.length > 0) {
                         const newUrls = res.map((file) => file.ufsUrl);
-                        setUrls((prev) => [...prev, ...newUrls]);
+                        urls.set([...urlsValue, ...newUrls]);
                       }
                     }}
                     onUploadError={() => {
@@ -281,9 +280,9 @@ export function Chat({ threadId }: { threadId: string }) {
                     }}
                   />
                 </div>
-                {urls.length > 0 && (
+                {urlsValue.length > 0 && (
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    {urls.map((url, index) => (
+                    {urlsValue.map((url, index) => (
                       <div key={index} className="relative rounded-lg border border-border/60 bg-card/40 p-1 md:p-1.5 flex items-center gap-1 md:gap-1.5 flex-shrink-0">
                         <div className="relative w-7 h-7 md:w-8 md:h-8 rounded-md overflow-hidden bg-muted flex-shrink-0">
                           <Image
@@ -299,7 +298,7 @@ export function Chat({ threadId }: { threadId: string }) {
                           type="button"
                           variant="ghost"
                           size="icon"
-                          onClick={() => setUrls((prev) => prev.filter((_, i) => i !== index))}
+                          onClick={() => urls.set(urlsValue.filter((_, i) => i !== index))}
                           className="h-4 w-4 md:h-5 md:w-5 rounded-md hover:bg-destructive/10 hover:text-destructive flex-shrink-0"
                         >
                           <X className="h-2.5 w-2.5 md:h-3 md:w-3" />
@@ -324,7 +323,7 @@ export function Chat({ threadId }: { threadId: string }) {
                   <Button
                     type="submit"
                     size="icon"
-                    disabled={!prompt.trim()}
+                    disabled={!promptValue.trim()}
                     className="h-8 w-8 md:h-9 md:w-9 rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50 transition-all shadow-md hover:shadow-lg hover:scale-105 active:scale-95 disabled:hover:scale-100"
                   >
                     <ArrowUp className="h-3.5 w-3.5 md:h-4 md:w-4" />
@@ -339,7 +338,7 @@ export function Chat({ threadId }: { threadId: string }) {
   );
 }
 
-function ChatMessage({ message, threadId, selectedModel, urls, webSearch }: { message: UIMessage, threadId: string, selectedModel: string, urls: string[], webSearch: boolean }) {
+function ChatMessage({ message, threadId, webSearch }: { message: UIMessage, threadId: string, webSearch: boolean }) {
   const isUser = message.role === "user";
   const isStreaming = message.status === "streaming";
   const isFailed = message.status === "failed";
@@ -414,7 +413,7 @@ function ChatMessage({ message, threadId, selectedModel, urls, webSearch }: { me
         </Message>
         {!isStreaming && (
         <div className="mt-2 flex items-center justify-end gap-2 ">
-          <RetryPromptModel visibleText={visibleText || ""} threadId={threadId} selectedModel={selectedModel} urls={urls} sendMessage={handleRetry} />
+          <RetryPromptModel visibleText={visibleText || ""} threadId={threadId} sendMessage={handleRetry} />
           <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => {
             navigator.clipboard.writeText(visibleText || "");
           }}>
@@ -486,12 +485,15 @@ function ChatMessage({ message, threadId, selectedModel, urls, webSearch }: { me
       </Message>
       {!isStreaming && (
         <div className="mt-3 flex items-center justify-start gap-2">
-          <RetryPromptModel visibleText={visibleText || ""} threadId={threadId} selectedModel={selectedModel} urls={urls} sendMessage={handleRetry} />
+          <RetryPromptModel visibleText={visibleText || ""} threadId={threadId} sendMessage={handleRetry} />
           <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => {
             navigator.clipboard.writeText(visibleText || "");
           }}>
             <Copy className="h-3.5 w-3.5" />
           </Button>
+          <span className="text-xs text-muted-foreground">
+            {}
+          </span>
         </div>
       )}
     </>

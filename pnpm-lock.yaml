@@ -110,6 +110,9 @@ importers:
       '@radix-ui/react-use-controllable-state':
         specifier: ^1.2.2
         version: 1.2.2(@types/react@19.2.2)(react@19.2.0)
+      '@simplestack/store':
+        specifier: ^0.6.4
+        version: 0.6.4(react@19.2.0)
       '@tanstack/react-form':
         specifier: ^1.23.8
         version: 1.23.8(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1762,6 +1765,14 @@ packages:
 
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
+
+  '@simplestack/store@0.6.4':
+    resolution: {integrity: sha512-tDbQ2QbX7tfVvZZF5y4mwT6pIptMTHu0jGOEcr0xM/jU1T2x8t34eU+BxEI8PiPhQ+1FJjGZQoQelWSEK5/7dg==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@simplewebauthn/browser@13.2.2':
     resolution: {integrity: sha512-FNW1oLQpTJyqG5kkDg5ZsotvWgmBaC6jCHR7Ej0qUNep36Wl9tj2eZu7J5rP+uhXgHaLk+QQ3lqcw2vS5MX1IA==}
@@ -4578,6 +4589,9 @@ packages:
     resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
     engines: {node: '>= 0.4'}
 
+  signal-polyfill@0.2.2:
+    resolution: {integrity: sha512-p63Y4Er5/eMQ9RHg0M0Y64NlsQKpiu6MDdhBXpyywRuWiPywhJTpKJ1iB5K2hJEbFZ0BnDS7ZkJ+0AfTuL37Rg==}
+
   simple-websocket@5.1.1:
     resolution: {integrity: sha512-1yCq3y3XtzENKnCT5ycsV2f45PlQoIQOKeSlOMQ43Z2rKkIxLsJz3dZRRccHJE/rdbMozLUl/SRisdLchX2TrQ==}
 
@@ -6902,6 +6916,12 @@ snapshots:
       '@types/hast': 3.0.4
 
   '@shikijs/vscode-textmate@10.0.2': {}
+
+  '@simplestack/store@0.6.4(react@19.2.0)':
+    dependencies:
+      signal-polyfill: 0.2.2
+    optionalDependencies:
+      react: 19.2.0
 
   '@simplewebauthn/browser@13.2.2': {}
 
@@ -10478,6 +10498,8 @@ snapshots:
       side-channel-list: 1.0.0
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
+
+  signal-polyfill@0.2.2: {}
 
   simple-websocket@5.1.1:
     dependencies:

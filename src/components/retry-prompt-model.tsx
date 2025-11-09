@@ -6,6 +6,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { RefreshCcw, Check } from "lucide-react";
 import { chatModel } from "../../convex/chatModel";
 import { cn } from "@/lib/utils";
+import { useStoreValue } from "@simplestack/store/react";
+import { selectedModel, urls } from "@/lib/store";
 
 const PROVIDER_LABELS: Record<string, string> = {
   openai: "OpenAI",
@@ -23,13 +25,15 @@ function getProvider(id: string) {
   return provider in PROVIDER_LABELS ? provider : "other";
 }
 
-export default function RetryPromptModel({ visibleText, threadId, selectedModel, urls, sendMessage  }: { visibleText: string, threadId: string, selectedModel: string, urls: string[], sendMessage: (args: { threadId: string, prompt: string, model: string, urls: string[] }) => Promise<void> }) {
+export default function RetryPromptModel({ visibleText, threadId, sendMessage  }: { visibleText: string, threadId: string, sendMessage: (args: { threadId: string, prompt: string, model: string, urls: string[] }) => Promise<void> }) {
   const [open, setOpen] = useState(false);
-  const [tempModel, setTempModel] = useState(selectedModel);
+  const selectedModelValue = useStoreValue(selectedModel);
+  const urlsValue = useStoreValue(urls);
+  const [tempModel, setTempModel] = useState(selectedModelValue);
 
   useEffect(() => {
-    setTempModel(selectedModel);
-  }, [selectedModel]);
+    setTempModel(selectedModelValue);
+  }, [selectedModelValue]);
 
   const groupedModels = useMemo(() => {
     const groups = chatModel.reduce<Record<string, typeof chatModel>>((acc, m) => {
@@ -56,7 +60,7 @@ export default function RetryPromptModel({ visibleText, threadId, selectedModel,
       threadId: threadId,
       prompt: text,
       model: model,
-      urls: urls.length > 0 ? urls : [],
+      urls: urlsValue.length > 0 ? urlsValue : [],
     });
     
     setOpen(false);

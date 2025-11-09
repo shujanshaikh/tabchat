@@ -1,6 +1,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectLabel, SelectGroup } from "./ui/select";
 import { chatModel } from "../../convex/chatModel";
 import { cn } from "@/lib/utils";
+import { useStoreValue } from "@simplestack/store/react";
+import { selectedModel } from "@/lib/store";
 
 const PROVIDER_LABELS: Record<string, string> = {
     openai: "OpenAI",
@@ -20,9 +22,10 @@ function getProvider(id: string) {
 
 type ModelOption = (typeof chatModel)[number];
 
-export default function ChatModelSelector({ model, setModel }: { model: string; setModel: (model: string) => void }) {
-    const selectedModelData = chatModel.find((m) => m.id === model);
-
+export default function ChatModelSelector({ model }: { model: string }) {
+    const selectedModelValue = useStoreValue(selectedModel);
+    const effectiveModel = selectedModelValue || model || chatModel[0]?.id || "";
+    const selectedModelData = chatModel.find((m) => m.id === effectiveModel);
     // Group models by provider while preserving their original order
     const groups = chatModel.reduce<Record<string, ModelOption[]>>((acc, m) => {
         const provider = getProvider(m.id);
@@ -36,7 +39,7 @@ export default function ChatModelSelector({ model, setModel }: { model: string; 
         .filter((p, idx, arr) => arr.indexOf(p) === idx);
 
     return (
-        <Select value={model} onValueChange={(value) => setModel(value)}>
+        <Select value={effectiveModel} onValueChange={(value) => selectedModel.set(value)}>
             <SelectTrigger
                 size="sm"
                 className={cn(
@@ -51,7 +54,7 @@ export default function ChatModelSelector({ model, setModel }: { model: string; 
             >
                 <SelectValue>
                     <span className="truncate max-w-[6rem] sm:max-w-[8rem] md:max-w-[12rem] text-sidebar-foreground/90 text-[10px] sm:text-xs">
-                        {selectedModelData?.name || "Select model"}
+                        {selectedModelData ? selectedModelData.name : "Select model"}
                     </span>
                 </SelectValue>
             </SelectTrigger>
@@ -108,3 +111,4 @@ export default function ChatModelSelector({ model, setModel }: { model: string; 
         </Select>
     );
 }
+
