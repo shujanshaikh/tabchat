@@ -4,9 +4,7 @@ import { useStoreValue } from "@simplestack/store/react";
 import { api } from "../../../convex/_generated/api";
 import {
   optimisticallySendMessage,
-  useSmoothText,
-  useUIMessages,
-  type UIMessage,
+  useUIMessages,  
 } from "@convex-dev/agent/react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -27,25 +25,8 @@ import {
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import { Message, MessageContent } from "@/components/ai-elements/message";
-import { Response } from "@/components/ai-elements/response";
-import {
-  Reasoning,
-  ReasoningContent,
-  ReasoningTrigger,
-} from "@/components/ai-elements/reasoning";
-import LoadingDots from "@/components/loading-dots";
-import {
-  Sources,
-  SourcesContent,
-  SourcesTrigger,
-  Source,
-} from "@/components/ai-elements/sources";
-import { ToolUIPart } from "ai";
-import { WebSearchParts } from "@/components/web-search-parts";
-import RetryPromptModel from "@/components/retry-prompt-model";
-import { Copy } from "lucide-react";
 import { prompt, selectedModel, urls, webSearch } from "@/lib/store";
+import ChatMessage from "@/components/chat-message";
 
 
 export default function ChatStreaming() {
@@ -63,7 +44,7 @@ export default function ChatStreaming() {
         setThreadId(hash || undefined);
       }
     };
-    
+
     updateThreadId();
     window.addEventListener("hashchange", updateThreadId);
     return () => window.removeEventListener("hashchange", updateThreadId);
@@ -117,7 +98,7 @@ export function Chat({ threadId }: { threadId: string }) {
     { threadId },
     { initialNumItems: 10, stream: true },
   );
-  
+
   const sendMessage = useMutation(
     api.chatStreaming.initiateAsyncStreaming,
   ).withOptimisticUpdate(
@@ -137,20 +118,20 @@ export function Chat({ threadId }: { threadId: string }) {
   function onSendClicked() {
     const text = promptValue.trim();
     if (!text) return;
-    
+
     const isFirstMessage = messages.length === 0;
-    void sendMessage({ 
-      threadId, 
-      prompt: text, 
+    void sendMessage({
+      threadId,
+      prompt: text,
       model: selectedModelValue,
       urls: urlsValue.length > 0 ? urlsValue : undefined,
       webSearch: webSearchValue,
     }).catch(() => {
     });
-    
+
     prompt.set("");
-    urls.set([]); 
-    
+    urls.set([]);
+
     if (isFirstMessage && !titleUpdatedRef.current) {
       titleUpdatedRef.current = true;
       setTimeout(() => {
@@ -158,7 +139,7 @@ export function Chat({ threadId }: { threadId: string }) {
       }, 1000);
     }
   }
-  
+
 
 
   function handleAbort() {
@@ -222,7 +203,7 @@ export function Chat({ threadId }: { threadId: string }) {
               <div className="absolute bottom-3 md:bottom-4 left-3 md:left-4 right-12 md:right-auto flex items-center gap-1 md:gap-1.5 md:gap-2 flex-wrap max-w-[calc(100%-3.5rem)] md:max-w-none">
                 <div className="flex items-center gap-1 md:gap-1.5 md:gap-2 flex-shrink-0 flex-wrap">
                   <div className="scale-90 md:scale-100 origin-left">
-                    <ChatModelSelector model={selectedModelValue}/>
+                    <ChatModelSelector model={selectedModelValue} />
                   </div>
                   <button
                     type="button"
@@ -276,7 +257,7 @@ export function Chat({ threadId }: { threadId: string }) {
                     appearance={{
                       container: "ut-inline-block [&_[data-ut-element=button]]:ut-relative [&_[data-ut-element=button]]:ut-z-10",
                       button: "ut-border-none ut-bg-transparent ut-p-0 ut-shadow-none ut-outline-none ut-cursor-pointer",
-                      allowedContent : "hidden",
+                      allowedContent: "hidden",
                     }}
                   />
                 </div>
@@ -338,220 +319,7 @@ export function Chat({ threadId }: { threadId: string }) {
   );
 }
 
-function ChatMessage({ message, threadId, webSearch }: { message: UIMessage, threadId: string, webSearch: boolean }) {
-  const isUser = message.role === "user";
-  const isStreaming = message.status === "streaming";
-  const isFailed = message.status === "failed";
-  const [visibleText] = useSmoothText(message.text, {
-    startStreaming: isStreaming,
-  });
-  
-
-  const sourceParts = message.parts.filter((p) => p.type === "source-url");
-  const hasSources = sourceParts.length > 0;
-
-  const reasoningParts = message.parts.filter((p) => p.type === "reasoning");
-
-  const textParts = message.parts.filter((p) => p.type === "text");
-  const webSearchParts = message.parts.filter(
-    (p): p is ToolUIPart => p.type === "tool-webSearch",
-  );
 
 
-  const sendMessage = useMutation(
-    api.chatStreaming.initiateAsyncStreaming,
-  ).withOptimisticUpdate(
-    optimisticallySendMessage(api.chatStreaming.listThreadMessages),
-  );
 
-  const handleRetry = async (args: { threadId: string, prompt: string, model: string, urls: string[] }): Promise<void> => {
-    await sendMessage({
-      threadId: args.threadId,
-      prompt: args.prompt,
-      model: args.model,
-      urls: args.urls.length > 0 ? args.urls : undefined,
-      webSearch: webSearch,
-    });
-  };
-  if (isUser) {
-    return (
-      <div className="flex flex-col items-end">
-        <Message from="user">
-          <MessageContent
-            variant="contained"
-            className={cn(
-              "rounded-2xl shadow-sm",
-              isFailed && "bg-destructive/10 border-destructive/20 text-destructive"
-            )}
-          >
-            {visibleText && <Response>{visibleText}</Response>}
-            {message.parts
-              .filter((part) => part.type === "file" && (part as any).mediaType?.startsWith("image/"))
-              .length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {message.parts
-                    .filter((part) => part.type === "file" && (part as any).mediaType?.startsWith("image/"))
-                    .map((part, idx) => (
-                      <div
-                        key={`user-message-image-${idx}`}
-                        className="relative group rounded-xl overflow-hidden border border-border/40 bg-muted/30 hover:border-border/60 transition-all duration-200 shadow-sm hover:shadow-md"
-                      >
-                        <Image
-                          width={200}
-                          height={200}
-                          src={(part as any).url}
-                          className="max-w-[280px] max-h-[280px] min-w-[120px] min-h-[120px] w-auto h-auto object-cover"
-                          alt="Uploaded image"
-                          unoptimized
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-                      </div>
-                    ))}
-                </div>
-              )}
-          </MessageContent>
-        </Message>
-        {!isStreaming && (
-        <div className="mt-2 flex items-center justify-end gap-2 ">
-          <RetryPromptModel visibleText={visibleText || ""} threadId={threadId} sendMessage={handleRetry} />
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => {
-            navigator.clipboard.writeText(visibleText || "");
-          }}>
-            <Copy className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <Message from="assistant">
-        <MessageContent
-          variant="flat"
-          className={cn(
-            "w-full",
-            isFailed && "bg-destructive/10 border-destructive/20 text-destructive rounded-2xl px-4 py-3"
-          )}
-        >
-
-          {hasSources && (
-            <Sources className="mb-4">
-              <SourcesTrigger count={sourceParts.length} />
-              {sourceParts.map((part, i) => (
-                <SourcesContent key={`${message.key}-source-${i}`}>
-                  <Source href={part.url || ""} title={part.url || ""} />
-                </SourcesContent>
-              ))}
-            </Sources>
-          )}
-
-          {webSearchParts.length > 0 && (
-            <WebSearchParts
-              parts={webSearchParts}
-              messageKey={message.key}
-            />
-          )}
-
-          {reasoningParts.length > 0 && (
-            <ReasoningParts
-              parts={reasoningParts}
-              messageKey={message.key}
-              isStreaming={isStreaming}
-            />
-          )}
-
-          {textParts.length > 0 && (
-            <TextParts
-              parts={textParts}
-              messageKey={message.key}
-              isStreaming={isStreaming}
-            />
-          )}
-
-          {message.parts.length === 0 && (
-            <div className="leading-relaxed text-base text-foreground/90">
-              {visibleText ? (
-                <Response>{visibleText}</Response>
-              ) : isStreaming ? (
-                <span className="inline-flex items-center gap-2 text-muted-foreground">
-                  <LoadingDots />
-                </span>
-              ) : null}
-            </div>
-          )}
-        </MessageContent>
-      </Message>
-      {!isStreaming && (
-        <div className="mt-3 flex items-center justify-start gap-2">
-          <RetryPromptModel visibleText={visibleText || ""} threadId={threadId} sendMessage={handleRetry} />
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground" onClick={() => {
-            navigator.clipboard.writeText(visibleText || "");
-          }}>
-            <Copy className="h-3.5 w-3.5" />
-          </Button>
-          <span className="text-xs text-muted-foreground">
-            {}
-          </span>
-        </div>
-      )}
-    </>
-  );
-}
-
-function ReasoningParts({
-  parts,
-  messageKey,
-  isStreaming,
-}: {
-  parts: Array<{ text?: string }>;
-  messageKey: string;
-  isStreaming: boolean;
-}) {
-  const combinedReasoningText = parts.map((p) => p.text || "").join("\n");
-  const [reasoningText] = useSmoothText(combinedReasoningText, {
-    startStreaming: isStreaming,
-  });
-
-  if (!reasoningText) return null;
-
-  return (
-    <Reasoning
-      key={`${messageKey}-reasoning`}
-      isStreaming={isStreaming}
-      className="mb-4"
-    >
-      <ReasoningTrigger />
-      <ReasoningContent>{reasoningText}</ReasoningContent>
-    </Reasoning>
-  );
-}
-
-function TextParts({
-  parts,
-  messageKey,
-  isStreaming,
-}: {
-  parts: Array<{ text?: string }>;
-  messageKey: string;
-  isStreaming: boolean;
-}) {
-  const combinedText = parts.map((p) => p.text || "").join("");
-  const [partText] = useSmoothText(combinedText, {
-    startStreaming: isStreaming,
-  });
-
-  return (
-    <div className="leading-relaxed text-base text-foreground/90">
-      {partText ? (
-        <Response>{partText}</Response>
-      ) : isStreaming ? (
-        <span className="inline-flex items-center gap-2 text-muted-foreground">
-          <LoadingDots />
-        </span>
-      ) : null}
-    </div>
-  );
-}
 

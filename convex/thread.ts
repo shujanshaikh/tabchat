@@ -1,7 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { action, ActionCtx, mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import { components } from "./_generated/api";
-import { createThread, getThreadMetadata, saveMessage, vMessage } from "@convex-dev/agent";
+import { createThread, getThreadMetadata, listMessages, saveMessage, vMessage } from "@convex-dev/agent";
 import {v} from "convex/values";
 import { z } from "zod";
 import {agent} from "./chat/agent";
@@ -91,6 +91,50 @@ export const createNewThread = mutation({
   })  
 
   
+  export const forkThread = mutation({
+    args: { threadId: v.string() },
+    handler: async (ctx, { threadId }) => {
+      await authorizeThreadAccess(ctx, threadId, true);
+      const threadDetails = await getThreadMetadata(ctx, components.agent, { threadId });
+      
+      // Fetch all messages from the original thread
+      const allMessages: Array<{ message?: any }> = [];
+      let cursor: string | null = null;
+      let isDone = false;
+      
+      while (!isDone) {
+        const result = await listMessages(ctx, components.agent, {
+          threadId,
+          paginationOpts: { numItems: 1000, cursor },
+        });
+        
+        allMessages.push(...result.page);
+        cursor = result.continueCursor;
+        isDone = result.isDone;
+      }
+      
+      // Reverse to get chronological order (listMessages returns newest first)
+      allMessages.reverse();
+      
+      // Create the new thread
+      const newThreadId = await createThread(ctx, components.agent, {
+        userId: threadDetails.userId,
+        title: threadDetails.title,
+      });
+      
+      // Copy all messages to the new thread
+      for (const msg of allMessages) {
+        if (msg.message) {
+          await saveMessage(ctx, components.agent, {
+            threadId: newThreadId,
+            message: msg.message,
+          });
+        }
+      }
+      
+      return newThreadId;
+    },
+  });
 
   
   export async function authorizeThreadAccess(

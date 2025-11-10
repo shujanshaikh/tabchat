@@ -22,9 +22,11 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { api } from "../../convex/_generated/api";
 import { useQuery, useMutation, useConvexAuth } from "convex/react";
-import { MessageSquare, Plus, Loader2, Trash2 } from "lucide-react";
+import { MessageSquare, Plus, Loader2, Trash2, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
+import { useStoreValue } from "@simplestack/store/react";
+import { forThreadId } from "@/lib/store";
 
 export function Sidepanel() {
     const router = useRouter();
@@ -45,6 +47,33 @@ export function Sidepanel() {
             maximumBytesRead: 1000000,
         },
     });
+    const forkThread = useMutation(api.thread.forkThread);
+    const forThreadIdValue = useStoreValue(forThreadId);
+    
+    const handleForkThread = async (threadId: string, e?: React.MouseEvent | React.KeyboardEvent) => {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+        if (forThreadIdValue) return; 
+        
+        forThreadId.set(threadId);
+        try {
+            const newThreadId = await forkThread({ threadId });
+            if (pathname === "/chat") {
+                window.location.hash = `#${newThreadId}`;
+                setActiveThreadId(newThreadId);
+            } else {
+                router.push(`/chat#${newThreadId}`);
+                setActiveThreadId(newThreadId);
+            }
+        } catch (error) {
+            console.error("Failed to fork thread:", error);
+        } finally {
+            forThreadId.set("");
+        }
+    };
+
     
     const createThread = useMutation(api.thread.createNewThread);
     const [isCreatingThread, setIsCreatingThread] = useState(false);
@@ -202,6 +231,27 @@ export function Sidepanel() {
                                                     )}
                                                     tooltip={displayText}
                                                 >
+                                                    <div
+                                                        onClick={(e) => {
+                                                            handleForkThread(thread._id, e);
+                                                        }}
+                                                        className="flex h-6 w-0 items-center justify-center rounded transition-all duration-200 ease-out opacity-0 scale-95 -translate-x-1 group-hover/item:opacity-100 group-hover/item:scale-100 group-hover/item:translate-x-0 group-hover/item:w-6 group-hover/item:mr-1 overflow-hidden text-muted-foreground cursor-pointer z-10 hover:bg-primary/10 hover:text-primary flex-shrink-0"
+                                                        title="Fork thread"
+                                                        aria-label="Fork thread"
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === "Enter" || e.key === " ") {
+                                                                handleForkThread(thread._id, e);
+                                                            }
+                                                        }}
+                                                    >
+                                                        {forThreadIdValue === thread._id ? (
+                                                            <Loader2 className="h-3.5 w-3.5 flex-shrink-0 animate-spin" />
+                                                        ) : (
+                                                            <GitBranch className="h-3.5 w-3.5 flex-shrink-0" />
+                                                        )}
+                                                    </div>
                                                     {!isActive && (
                                                         <div
                                                             onClick={(e) => {

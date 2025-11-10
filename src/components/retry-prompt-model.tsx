@@ -72,7 +72,7 @@ export default function RetryPromptModel({ visibleText, threadId, sendMessage  }
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6 text-muted-foreground hover:text-foreground transition-all duration-200 rounded-md hover:bg-gradient-to-br hover:from-primary/20 hover:via-primary/10 hover:to-transparent hover:shadow-sm hover:shadow-primary/10"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all duration-200 rounded-md"
         >
           <RefreshCcw className="h-3.5 w-3.5" />
         </Button>

@@ -8,9 +8,13 @@ export const chatStore = store({
     prompt: "",
     urls: [] as string[],
     webSearch: false,
+    forThreadId: "",
+    hoverThreadId: false,
 });
 
 
+export const hoverThreadId = chatStore.select("hoverThreadId");
+export const forThreadId = chatStore.select("forThreadId");
 export const prompt = chatStore.select("prompt");
 export const urls = chatStore.select("urls");
 export const webSearch = chatStore.select("webSearch");
