@@ -12,6 +12,10 @@ export const chatModel = [{
     name: "Gemini 2.5 Pro",
     description: "Advanced Gemini model with superior reasoning and capabilities.",
 }, {
+    id : "google/gemini-3-pro-preview",
+    name : "Gemini 3 Pro Preview",
+    description : "Gemini 3 Pro Preview is a preview of the Gemini 3 Pro model, it is a powerful model with superior reasoning and capabilities.",
+} ,{
     id: "openai/gpt-5.1-thinking",
     name: "GPT-5.1 Thinking",
     description: "An upgraded version of GPT-5 that adapts thinking time more precisely to the question to spend more time on complex questions and respond more quickly to simpler tasks.",
